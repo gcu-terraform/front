@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infrastructure Setup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 100px;
+            color: white;
+            background-color: black;
+        }
+
+        header {  
+  height: 75px;
+  padding: 1rem;
+  color: white;
+  background: teal;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+span {
+    font-size: large;
+    margin-right: 10px;
+    border: solid;
+    border-top:3px;
+    border-left: 3px;
+    border-right: 3px;
+}
+
+        fieldset {
+            border-color: aqua;
+            margin-bottom: 20px;
+        }
+
+        legend {
+            font-weight: bold;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input,
+        select {
+            display: block;
+            padding: 8px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .radioInput {
+            display: inline;
+        }
+
+        .flexDiv {
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .flexItems {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>테라폼 변환</h1>
+        <nav>
+          <span>Kakao Cloud</span>
+          <span>AWS</span>
+          <span>Azure</span>
+        </nav>
+      </header>
+    <h1>Kakao Cloud</h1>
+    <form action="submit_form.php" method="post">
+
+        <!-- Beyond Networking Service - VPC -->
+        <fieldset>
+            <legend>Beyond Networking Service</legend>
+            <fieldset>
+                <legend>VPC</legend>
+                <label for="region">Region</label>
+                <input type="text" id="region" name="vpcregion" required>
+
+                <label for="vpcName">VPC 이름</label>
+                <input type="text" id="vpcName" name="vpcName" required>
+
+                <label for="vpcCidr">IP4 CIDR 블록</label>
+                <input type="text" id="vpcCidr" name="vpcCidr" required>
+
+                <label for="vpcTags">태그</label>
+                <input type="text" id="vpcTags" name="vpcTags" required>
+            </fieldset>
+            <fieldset>
+                <legend>Subnet</legend>
+                <label for="subnetName">Subnet 이름</label>
+                <input type="text" id="subnetName" name="subnetName" required>
+                <div>
+                    <input class="radioInput" type="radio" id="subnetPublic" name="subnetP" value="subnetPublic"
+                        checked />
+                    <label class="radioInput" for="subnetPublic">Public</label>
+                    <input class="radioInput" type="radio" id="subnetPrivate" name="subnetP" value="subnetPrivate" />
+                    <label class="radioInput" for="subnetPrivate">Private</label>
+                </div>
+                <label for="subnetVpcName">VPC 이름</label>
+                <input type="text" id="subnetVpcName" name="subnetVpcName" required>
+
+                <label for="subnetAz">가용 영역</label>
+                <input type="text" id="subnetAZ" name="subnetAZ" required>
+
+                <label for="subnetCidr">IP4 CIDR 블록</label>
+                <input type="text" id="subnetCIDR" name="subnetCIDR" required>
+
+                <label for="subnetTags">태그</label>
+                <input type="text" id="subnetTags" name="subnetTags" required>
+
+                <button type="button" onclick="addSubnet()">Subnet 추가</button>
+
+            </fieldset>
+
+            <fieldset>
+                <legend>Route Table</legend>
+                <label for="routeTableName">Route Table 이름</label>
+                <input type="text" id="routeTableName" name="routeTableName" required>
+
+                <label for="routeTableVpcName">연결 VPC 이름</label>
+                <input type="text" id="routeTableVpcName" name="routeTableVpcName" required>
+
+                <label for="routeTableSubnetName">연결 Subnet 이름</label>
+                <input type="number" id="routeTableSubnetName" name="routeTableSubnetName" required>
+
+                <label for="routeTableTargetType">Target Type</label>
+                <select name="routeTableTargetType" id="routeTableTargetType">
+                    <option value="">--Target Type 선택--</option>
+                    <option value="instance">인스턴스</option>
+                    <option value="gateway">게이트웨이</option>
+                </select>
+
+                <label for="routeTableTargetName">Target Name</label>
+                <input type="text" id="routeTableTargetName" name="routeTableTargetName" required>
+
+                <label for="routeTableTargetIp">목적지 IP</label>
+                <input type="text" id="routeTableTargetIp" name="routeTableTargetIp" required>
+
+                <label for="routeTableNatGateway">NAT 게이트웨이</label>
+                <input type="text" id="routeTableNatGateway" name="routeTableNatGateway" required>
+
+                <label for="routeTableTags">태그</label>
+                <input type="text" id="routeTableTags" name="routeTableTags" required>
+
+            </fieldset>
+
+            <fieldset>
+                <legend>Security Group</legend>
+                <label for="securityGroupName">Security Group 이름</label>
+                <input type="text" id="securityGroupName" name="securityGroupName" required>
+
+                <fieldset>
+                    <legend>인바운드 규칙</legend>
+                    <div class="flexDiv">
+                        <div>
+                            <label for="inboundProtocol">프로토콜</label>
+                            <input type="text" id="inboundProtocol" name="inboundProtocol" required>
+                        </div>
+                        <div class="flexItems">
+                            <label for="inbountPort">포트 범위</label>
+                            <input type="text" id="inbountPort" name="inbountPort" required>
+                        </div>
+                        <div class="flexItems">
+                            <label for="inboundIp">IP</label>
+                            <input type="text" id="inboundIp" name="inboundIp" required>
+                        </div>
+                    </div>
+                    <button type="button" onclick="addInBound()">인바운드 규칙 추가</button>
+
+                </fieldset>
+                <fieldset>
+                    <legend>아웃바운드 규칙</legend>
+                    <div class="flexDiv">
+                        <div>
+                            <label for="outboundProtocol">프로토콜</label>
+                            <input type="text" id="outboundProtocol" name="outboundProtocol" required>
+                        </div>
+                        <div class="flexItems">
+                            <label for="outboundPort">포트 범위</label>
+                            <input type="text" id="outboundPort" name="outboundPort" required>
+                        </div>
+                        <div class="flexItems">
+                            <label for="outboundIp">IP</label>
+                            <input type="text" id="outboundIp" name="outboundIp" required>
+                        </div>
+                    </div>
+                    <button type="button" onclick="addOutBound()">아웃바운드 규칙 추가</button>
+                </fieldset>
+
+                <label for="securityGroupTags">태그</label>
+                <input type="text" id="securityGroupTags" name="securityGroupTags" required>
+
+            </fieldset>
+
+            <fieldset>
+                <legend>로드 밸런스</legend>
+                <label for="lbType">로드 밸런서 타입</label>
+                <select name="lbType" id="lbType">
+                    <option value="">--Load Balancer Type 선택--</option>
+                    <option value="ALB">Application Load Balancer(ALB)</option>
+                    <option value="NLB">Network Load Balancer(NLB)</option>
+                </select>
+
+                <label for="lbName">로드 밸런스 이름</label>
+                <input type="text" id="lbName" name="lbName" required>
+                <input class="radioInput" type="checkbox" id="lbPublic" name="lbPublic" value="lbPublic" />
+                <label class="radioInput" for="lbPublic">Public IP</label>
+
+                <fieldset>
+                    <legend>네트워크</legend>
+                    <div class="flexDiv">
+                        <div>
+                            <label for="lbVpc">VPC 이름</label>
+                            <input type="text" id="lbVpc" name="lbVpc" required>
+                        </div>
+                        <div class="flexItems">
+                            <label for="lbSubnet">Subnet 이름</label>
+                            <input type="number" id="lbSubnet" name="lbSubnet" required>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>리스너</legend>
+                    <div class="flexDiv">
+                        <div>
+                            <label for="lbProtocol">프로토콜</label>
+                            <input type="number" id="lbProtocol" name="lbProtocol" required>
+                        </div>
+                        <div class="flexItems">
+                            <label for="lbPort">포트</label>
+                            <input type="number" id="lbPort" name="lbPort" required>
+                        </div>
+                    </div>
+                </fieldset>
+                <label for="lbTargetGroup">타겟 그룹</label>
+                <input type="number" id="lbTargetGroup" name="lbTargetGroup" required>
+
+                <label for="lbTargetName">타겟 이름</label>
+                <input type="text" id="lbTargetName" name="lbTargetName" required>
+
+                <label for="lbTags">태그</label>
+                <input type="text" id="lbTags" name="lbTags" required>
+
+            </fieldset>
+            <!--<button type="button" onclick="addSubnet()">Add Subnet</button>-->
+        </fieldset>
+
+        <!-- Beyond Compute Service -->
+        <fieldset>
+            <legend>Beyond Compute Service</legend>
+            <!-- Add Compute Service fields here -->
+            <fieldset>
+                <legend>Virtual Machine - 인스턴스</legend>
+                <label for="instanceName">인스턴스 이름</label>
+                <input type="text" id="instanceName" name="instanceName" required>
+
+                <label for="instanceType">인스턴스 타입</label>
+                <input type="text" id="instanceType" name="instanceType" required>
+
+                <label for="instanceOs">OS 이미지</label>
+                <input type="text" id="instanceOs" name="instanceOs" required>
+
+                <label for="instanceKeyPair">Key Pair</label>
+                <input type="text" id="instanceKeyPair" name="instanceKeyPair" required>
+
+                <label for="instanceVolume">볼륨</label>
+                <input type="text" id="instanceVolume" name="instanceVolume" required>
+
+                <label for="instanceTags">태그</label>
+                <input type="text" id="instanceTags" name="instanceTags" required>
+
+                <button type="button" onclick="addInstance()">인스턴스 추가</button>
+
+            </fieldset>
+        </fieldset>
+
+        <!-- Beyond Storage Service -->
+        <fieldset>
+            <legend>Beyond Storage Service</legend>
+            <fieldset>
+                <legend>Object Storage</legend>
+                <label for="bucketName">Bucket 이름</label>
+                <input type="text" id="bucketName" name="bucketName" required>
+
+                <label for="bucketPolicy">Bucket 정책</label>
+                <input type="text" id="bucketPolicy" name="bucketPolicy" required>
+
+                <label for="bucketTags">태그</label>
+                <input type="text" id="bucketTags" name="bucketTags" required>
+
+            </fieldset>
+        </fieldset>
+
+        <!-- Data Store - MySQL -->
+        <fieldset>
+            <legend>Data Store</legend>
+            <!-- Add MySQL fields here -->
+            <fieldset>
+                <legend>MySQL</legend>
+                <label for="mysqlInstanceGroupName">인스턴스 그룹 이름</label>
+                <input type="text" id="mysqlInstanceGroupName" name="mysqlInstanceGroupName" required>
+
+                <fieldset>
+                    <legend>MySQL</legend>
+                    <div class="flexDiv">
+                        <div>
+                            <label for="mysqlVersion">버전</label>
+                            <input type="number" id="mysqlVersion" name="mysqlVersion" required>
+                        </div>
+                        <div class="flexItems">
+                            <label for="mysqlUser">사용자 이름</label>
+                            <input type="number" id="mysqlUser" name="mysqlUser" required>
+                        </div>
+                        <div class="flexItems">
+                            <label for="mysqlPwd">비밀번호</label>
+                            <input type="number" id="mysqlPwd" name="mysqlPwd" required>
+                        </div>
+                    </div>
+                </fieldset>
+                <label>인스턴스 가용성</label>
+                <div>
+                    <input class="radioInput" type="radio" id="mysqlInstanceAvailability" name="mysqlInstanceAvailability" value="mysqlInstanceAvailability"
+                        checked />
+                    <label class="radioInput" for="mysqlInstanceAvailability">고가용성</label>
+                    <input class="radioInput" type="radio" id="mysqlInstanceAvailability" name="mysqlInstanceAvailability" value="mysqlInstanceAvailability" />
+                    <label class="radioInput" for="mysqlInstanceAvailability">단일</label>
+                </div>
+
+                <label for="mysqlInstanceType">인스턴스 타입</label>
+                <input type="text" id="mysqlInstanceType" name="mysqlInstanceType" required>
+
+                <fieldset>
+                    <legend>기본 스토리지</legend>
+                    <div class="flexDiv">
+                        <div>
+                            <label for="mysqlDefaultType">타입</label>
+                            <input type="number" id="mysqlDefaultType" name="mysqlDefaultType" required>
+                        </div>
+                        <div class="flexItems">
+                            <label for="mysqlDefaultSize">크기</label>
+                            <input type="number" id="mysqlDefaultSize" name="mysqlDefaultSize" required>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>로컬 스토리지</legend>
+                    <div class="flexDiv">
+                        <div>
+                            <label for="mysqlLocalType">타입</label>
+                            <input type="number" id="mysqlLocalType" name="mysqlLocalType" required>
+                        </div>
+                        <div class="flexItems">
+                            <label for="mysqlLocalSize">크기</label>
+                            <input type="number" id="mysqlLocalSize" name="mysqlLocalSize" required>
+                        </div>
+                    </div>
+                </fieldset>
+                
+                <fieldset>
+                    <legend>네트워크 설정</legend>
+                    <div class="flexDiv">
+                        <div>
+                            <label for="mysqlVpc">설치 VPC 이름</label>
+                            <input type="number" id="mysqlVpc" name="mysqlVpc" required>
+                        </div>
+                        <div class="flexItems">
+                            <label for="mysqlSubnet">설치 subnet 이름</label>
+                            <input type="number" id="mysqlSubnet" name="mysqlSubnet" required>
+                        </div>
+                        <div class="flexItems">
+                            <label for="mysqlSubnetQuantity">인스턴스 갯수</label>
+                            <input type="number" id="mysqlSubnetQuantity" name="mysqlSubnetQuantity" required>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <label for="mysqlTags">태그</label>
+                <input type="text" id="mysqlTags" name="mysqlTags" required>
+
+            </fieldset>
+        </fieldset>
+
+        <button type="submit">테라폼 변환</button>
+    </form>
+
+    <script>
+        function addSubnet() {
+            // You can use JavaScript to dynamically add more subnet fields
+            // For example, clone an existing set of fields and append to the form
+        }
+    </script>
+
+</body>
+
+</html>
