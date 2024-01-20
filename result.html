@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infrastructure Setup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 100px;
+            color: white;
+            background-color: black;
+        }
+
+        header {
+            height: 75px;
+            padding: 1rem;
+            color: white;
+            background: teal;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        span {
+            font-size: large;
+            margin-right: 10px;
+            border: solid;
+            border-top: 3px;
+            border-left: 3px;
+            border-right: 3px;
+        }
+
+        fieldset {
+            border: none;
+            margin-bottom: 20px;
+            padding : 20px;
+        }
+
+        legend {
+            font-weight: bold;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            float: right;
+        }
+
+        .radioInput {
+            display: inline;
+        }
+
+        .flexDiv {
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .flexItems {
+            margin-left: 10px;
+        }
+        .codeHeader{
+            border: solid 1px white;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .codeHeader > * {
+            margin: 10px;
+        }
+        .codeBody{
+            border: solid 1px white;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>< 테라폼 결과</h1>
+    </header>
+    <h1>Kakao Cloud</h1>
+    <!-- Beyond Networking Service - VPC -->
+    <fieldset>
+        <div class="codeHeader">
+            <label>Terraform Code</label>
+            <button type="button" onclick="copyCode()">복사&#10064;</button>
+        </div>
+        <div class="codeBody">
+            <pre>
+hcl# VPC
+resource \"aws_vpc\" \"my_vpc\" {
+  cidr_block       = \"<vpc_cidr_block>\"
+  instance_tenancy = \"default\"
+  tags {
+    Name = \"<vpc_name>\"
+  }
+}
+
+# Subnets
+resource \"aws_subnet\" \"my_subnet\" {
+  count                   = <number_of_subnets>
+  vpc_id                  = aws_vpc.my_vpc.id
+  cidr_block              = \"<subnet_cidr_block>\"
+  availability_zone       = \"<availability_zone>\"
+  map_public_ip_on_launch = <true_or_false>
+  tags {
+    Name = \"<subnet_name>\"
+  }
+}
+
+# Route Table
+resource \"aws_route_table\" \"my_route_table\" {
+  vpc_id = aws_vpc.my_vpc.id
+  tags {
+    Name = \"<route_table_name>\"
+  }
+}
+
+# Security Group
+resource \"aws_security_group\" \"my_security_group\" {
+  vpc_id = aws_vpc.my_vpc.id
+
+  ingress {
+    from_port   = <inbound_from_port>
+    to_port     = <inbound_to_port>
+    protocol    = \"<inbound_protocol>\"
+    cidr_blocks = [\"<inbound_cidr_block>\"]
+  }
+
+  egress {
+    from_port   = <outbound_from_port>
+    to_port     = <outbound_to_port>
+    protocol    = \"<outbound_protocol>\"
+    cidr_blocks = [\"<outbound_cidr_block>\"]
+  }
+
+  tags {
+    Name = \"<security_group_name>\"
+  }
+}
+
+# Load Balancer
+resource \"aws_lb\" \"my_load_balancer\" {
+  name               = \"<load_balancer_name>\"
+  internal           = false
+  load_balancer_type = \"<load_balancer_type>\"
+  subnets            = [aws_subnet.my_subnet.id]
+}
+
+# EC2 Instance
+resource \"aws_instance\" \"my_instance\" {
+  count         = <instance_count>
+  instance_type = \"<instance_type>\"
+  ami           = \"<os_image>\"
+  key_name      = \"<key_pair_name>\"
+  subnet_id     = aws_subnet.my_subnet.id
+  associate_public_ip_address = <true_or_false>
+  tags {
+    Name = \"<instance_name>\"
+  }
+}
+
+# S3 Bucket
+resource \"aws_s3_bucket\" \"my_bucket\" {
+  bucket = \"<bucket_name>\"
+  acl    = \"<bucket_acl>\"
+  policy = <<EOT
+    <bucket_policy>
+  EOT
+}
+
+# RDS MySQL Instance
+resource \"aws_rds_db_instance\" \"my_mysql_instance\" {
+  count             = <instance_count>
+  name              = \"<mysql_instance_group_name>\"
+  engine            = \"mysql\"
+  engine_version    = \"<mysql_version>\"
+  username          = \"<mysql_username>\"
+  password          = \"<mysql_password>\"
+  allocated_storage = \"<storage_size>\"
+  instance_class    = \"<instance_type>\"
+  vpc_security_group_ids = [aws_security_group.my_security_group.id]
+  subnet_group_name     = aws_db_subnet_group.my_db_subnet_group.name
+}
+
+# RDS MySQL Subnet Group
+resource \"aws_db_subnet_group\" \"my_db_subnet_group\" {
+  name        = \"<subnet_group_name>\"
+  subnet_ids  = [aws_subnet.my_subnet.id]
+}
+            </pre>
+        </div>
+
+
+    </fieldset>
+
+</body>
+
+</html>
